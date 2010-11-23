@@ -1,0 +1,29 @@
+#!/usr/bin/perl
+
+use Cwd;
+my $wd = getcwd;
+
+my @args = @ARGV;
+
+my $command = shift @args;
+
+my @repos;
+while(my $str = pop @args){
+      if(-d $str && -d "$str/.git"){
+	    unshift @repos, $str;
+      }else{
+	    push @args, $str;
+	    last;
+      }
+}
+
+unless(@repos){
+      print STDERR " ========== NO REPOS SPECIFIED ==========\n";
+      exit 1;
+}
+
+foreach my $repo (@repos){
+      print "\n =================== $repo ===================\n";
+      chdir "$wd/$repo" or die "failed to chdir $wd/$repo";
+      system('git',$command,@args) and die $!;
+}
