@@ -1,0 +1,4 @@
+To install:
+
+perl Makefile.PL
+sudo make install
