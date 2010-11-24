@@ -18,8 +18,15 @@ while(my $str = pop @args){
 }
 
 unless(@repos){
-      print STDERR " ========== NO REPOS SPECIFIED ==========\n";
-      exit 1;
+      print STDERR "No repos specified. Apply to all? [Y/N]: \n";
+      my $q = <STDIN>;
+      exit unless $q =~ /^\s*Y/i;
+
+      foreach my $str ( glob('*') ){
+	    if(-d $str && -d "$str/.git"){
+		  push @repos, $str;
+	    }
+      }
 }
 
 foreach my $repo (@repos){
