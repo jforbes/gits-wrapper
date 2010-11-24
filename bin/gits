@@ -10,6 +10,7 @@ my $command = shift @args;
 my @repos;
 while(my $str = pop @args){
       if(-d $str && -d "$str/.git"){
+	    $str =~ s/\/$//g;
 	    unshift @repos, $str;
       }else{
 	    push @args, $str;
@@ -18,10 +19,6 @@ while(my $str = pop @args){
 }
 
 unless(@repos){
-      print STDERR "No repos specified. Apply to all? [Y/N]: \n";
-      my $q = <STDIN>;
-      exit unless $q =~ /^\s*Y/i;
-
       foreach my $str ( glob('*') ){
 	    if(-d $str && -d "$str/.git"){
 		  push @repos, $str;
