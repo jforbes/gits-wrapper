@@ -1,11 +1,24 @@
 #!/usr/bin/perl
 
 use Cwd;
-my $wd = getcwd;
 
 my @args = @ARGV;
 
+my %params = ();
+while (my $arg = shift @args) {
+      my ($param,$value) = $arg =~ m!^([^=]+)=(.*)$!;  # can unset something
+      unshift @args, $arg and last unless $param;
+      $params{$param} = $value;
+}
+
+$params{wd} ||= $ENV{GITSDIR};
+chdir( $params{wd} ) or die "failed to chdir($params{wd})" if $params{wd};
+my $wd = getcwd;
+
+$params{b} = $ENV{GITSBRANCH} unless defined $params{b};
+
 my $command = shift @args;
+
 
 my @repos;
 while(my $str = pop @args){
@@ -21,7 +34,16 @@ while(my $str = pop @args){
 unless(@repos){
       foreach my $str ( glob('*') ){
 	    if(-d $str && -d "$str/.git"){
-		  push @repos, $str;
+                  if ($params{b}) {
+                        chdir "$wd/$str" or die "failed to chdir $wd/$str";
+                        chomp( my @branches = `git branch` );
+                        my %bmap = map { $_ => 1 } map { $_ =~ m!..(.+)! } @branches;
+                        push @repos, $str if exists $bmap{$params{b}};
+                        chdir "$wd";
+                  }
+                  else {
+                        push @repos, $str;
+                  }
 	    }
       }
 }
