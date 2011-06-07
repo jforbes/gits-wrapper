@@ -29,5 +29,7 @@ unless(@repos){
 foreach my $repo (@repos){
       print "\n =================== $repo ===================\n";
       chdir "$wd/$repo" or die "failed to chdir $wd/$repo";
-      system('git',$command,@args) and die $!;
+      my @this_args = @args;
+      map {s/_REPO_/$repo/} @this_args;
+      system('git',$command,@this_args) and die $!;
 }
